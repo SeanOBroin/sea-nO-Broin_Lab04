@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:id="@+id/sendFrequency"
+        android:id="@+id/frequency"
         android:layout_below="@+id/counter"
         android:layout_centerHorizontal="true" />
 

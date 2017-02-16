@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         Switch onOffSwitch = (Switch) findViewById(R.id.onOffSwitch);//declared the switch here pointing to id onOffSwitch
         myCounter = (TextView) findViewById(R.id.counter);
-        myFrequency = (TextView) findViewById(R.id.sendFrequency);
+        myFrequency = (TextView) findViewById(R.id.frequency);
         //Check to see if switch1 value changes
         onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
