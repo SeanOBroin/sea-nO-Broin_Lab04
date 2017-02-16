@@ -1,0 +1,19 @@
+#N canvas 814 212 948 696 10;
+#X obj 224 136 r onOff;
+#X obj 224 310 s sendCounter;
+#X obj 224 56 s onOff;
+#X obj 224 16 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 224 167 metro 1000;
+#X obj 257 192 + 1;
+#X obj 224 250 mod 10;
+#X floatatom 224 282 5 0 0 0 - - -, f 5;
+#X obj 224 218 float;
+#X connect 0 0 4 0;
+#X connect 3 0 2 0;
+#X connect 4 0 8 0;
+#X connect 5 0 8 1;
+#X connect 6 0 7 0;
+#X connect 7 0 1 0;
+#X connect 8 0 5 0;
+#X connect 8 0 6 0;
