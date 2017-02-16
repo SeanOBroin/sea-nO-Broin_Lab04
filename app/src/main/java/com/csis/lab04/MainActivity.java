@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PdUiDispatcher dispatcher; //must declare this to use later, used to receive data from sendEvents
     TextView myCounter;
+    TextView myFrequency;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);//Mandatory
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         Switch onOffSwitch = (Switch) findViewById(R.id.onOffSwitch);//declared the switch here pointing to id onOffSwitch
-     myCounter = (TextView) findViewById(R.id.counter);
+        myCounter = (TextView) findViewById(R.id.counter);
+        myFrequency = (TextView) findViewById(R.id.frequency);
         //Check to see if switch1 value changes
         onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -134,6 +136,10 @@ public class MainActivity extends AppCompatActivity {
             if(source.equals("sendCounter")) {
             myCounter.setText(String.valueOf(x));
            }
+            if(source.equals("sendFrequency")) {
+
+            myCounter.setText(String.valueOf(x));
+            }
         }
 
         @Override
@@ -164,7 +170,10 @@ public class MainActivity extends AppCompatActivity {
 
         dispatcher.addListener("sendCounter", receiver1);
         PdBase.subscribe("sendCounter");
-        
+
+        dispatcher.addListener("sendFrequency", receiver1);
+        PdBase.subscribe("sendFrequency");
+
     }
 
 }
