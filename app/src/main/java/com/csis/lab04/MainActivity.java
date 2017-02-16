@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private PdUiDispatcher dispatcher; //must declare this to use later, used to receive data from sendEvents
     TextView myCounter;
     TextView myFrequency;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);//Mandatory
@@ -45,12 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
         Switch onOffSwitch = (Switch) findViewById(R.id.onOffSwitch);//declared the switch here pointing to id onOffSwitch
         myCounter = (TextView) findViewById(R.id.counter);
-        myFrequency = (TextView) findViewById(R.id.frequency);
+        myFrequency = (TextView) findViewById(R.id.sendFrequency);
         //Check to see if switch1 value changes
         onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                float val = (isChecked) ?  1.0f : 0.0f; // value = (get value of isChecked, if true val = 1.0f, if false val = 0.0f)
+                float val = (isChecked) ? 1.0f : 0.0f; // value = (get value of isChecked, if true val = 1.0f, if false val = 0.0f)
                 sendFloatPD("onOff", val); //send value to patch, receiveEvent names onOff
 
             }
@@ -67,14 +68,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override //If screen is resumed
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         PdAudio.startAudio(this);
     }
 
     @Override//If we switch to other screen
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         PdAudio.stopAudio();
     }
@@ -86,26 +86,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //METHOD TO SEND BANG TO PUREDATA PATCH
-    public void sendBangPD(String receiver)
-    {
+    public void sendBangPD(String receiver) {
 
         PdBase.sendBang(receiver); //send bang to receiveEvent
     }
 
 
     //<---THIS METHOD LOADS SPECIFIED PATCH NAME----->
-    private void loadPDPatch(String patchName) throws IOException
-    {
+    private void loadPDPatch(String patchName) throws IOException {
         File dir = getFilesDir(); //Get current list of files in directory
         try {
             IoUtils.extractZipResource(getResources().openRawResource(R.raw.counter), dir, true); //extract the zip file in raw called synth
             File pdPatch = new File(dir, patchName); //Create file pointer to patch
             PdBase.openPatch(pdPatch.getAbsolutePath()); //open patch
-        }catch (IOException e)
-        {
+        } catch (IOException e) {
 
         }
     }
+
     private PdReceiver receiver1 = new PdReceiver() {
         private void pdPost(final String msg) {
             Log.e("RECEIVED:", msg);
@@ -117,64 +115,62 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        @Override
-        public void print(String s) {
-            Log.i("PRINT",s);
-            Toast.makeText(getBaseContext(),s,Toast.LENGTH_LONG);
-        }
-
-        @Override
-        public void receiveBang(String source)
-        {
-            pdPost("bang");
-        }
-
-        @Override
-        public void receiveFloat(String source, float x)
-        {
-            pdPost("float: " + x);
-            if(source.equals("sendCounter")) {
-            myCounter.setText(String.valueOf(x));
-           }
-            if(source.equals("sendFrequency")) {
-
-            myCounter.setText(String.valueOf(x));
+            @Override
+            public void print(String s) {
+                Log.i("PRINT", s);
+                Toast.makeText(getBaseContext(), s, Toast.LENGTH_LONG);
             }
+
+            @Override
+            public void receiveBang(String source) {
+                pdPost("bang");
+            }
+
+            @Override
+            public void receiveFloat(String source, float x) {
+                pdPost("float: " + x);
+                if (source.equals("sendCounter")) {
+                    myCounter.setText(String.valueOf(x));
+                }
+                if (source.equals("sendFrequency")) {
+
+                    myCounter.setText(String.valueOf(x));
+                }
+            }
+
+            @Override
+            public void receiveList(String source, Object... args) {
+                pdPost("list: " + Arrays.toString(args));
+            }
+
+            @Override
+            public void receiveMessage(String source, String symbol, Object... args) {
+                pdPost("message: " + Arrays.toString(args));
+
+            }
+
+            @Override
+            public void receiveSymbol(String source, String symbol) {
+                pdPost("symbol: " + symbol);
+            }
+        };
+
+        //<---THIS METHOD INITIALISES AUDIO SERVER----->
+        private void initPD() throws IOException {
+            int sampleRate = AudioParameters.suggestSampleRate(); //get sample rate from system
+            PdAudio.initAudio(sampleRate, 0, 2, 8, true); //initialise audio engine
+
+            dispatcher = new PdUiDispatcher(); //create UI dispatcher
+            PdBase.setReceiver(dispatcher); //set dispatcher to receive items from puredata patches
+
+            dispatcher.addListener("sendCounter", receiver1);
+            PdBase.subscribe("sendCounter");
+
+            dispatcher.addListener("sendFrequency", receiver1);
+            PdBase.subscribe("sendFrequency");
+
         }
-
-        @Override
-        public void receiveList(String source, Object... args) {
-            pdPost("list: " + Arrays.toString(args));
-        }
-
-        @Override
-        public void receiveMessage(String source, String symbol, Object... args) {
-            pdPost("message: " + Arrays.toString(args));
-
-        }
-
-        @Override
-        public void receiveSymbol(String source, String symbol) {
-            pdPost("symbol: " + symbol);
-        }
-    };
-
-    //<---THIS METHOD INITIALISES AUDIO SERVER----->
-    private void initPD() throws IOException
-    {
-        int sampleRate = AudioParameters.suggestSampleRate(); //get sample rate from system
-        PdAudio.initAudio(sampleRate,0,2,8,true); //initialise audio engine
-
-        dispatcher = new PdUiDispatcher(); //create UI dispatcher
-        PdBase.setReceiver(dispatcher); //set dispatcher to receive items from puredata patches
-
-        dispatcher.addListener("sendCounter", receiver1);
-        PdBase.subscribe("sendCounter");
-
-        dispatcher.addListener("sendFrequency", receiver1);
-        PdBase.subscribe("sendFrequency");
 
     }
 
-}
 
